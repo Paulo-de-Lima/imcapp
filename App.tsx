@@ -40,9 +40,8 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 10,
     borderRadius: 10,
-  }
+  },
   btntext: {
     textAlign: 'center',
-    
   }
 });
