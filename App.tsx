@@ -7,52 +7,80 @@ export default function App() {
   const [altura, setAltura] = useState<string>("");
   const [imc, setImc] = useState<number | null>(null);
   const [classificacao, setClassificacao] = useState<string | null>(null);
+  const [mensagem, setMensagem] = useState("");
+
+  function validarCampos() {
+    if (peso === "" || altura === "") {
+      setMensagem("Preencha o peso e a altura");
+      setImc(null);
+      return;
+    }
+
+    const numPeso = parseFloat(peso);
+    const numAltura = parseFloat(altura);
+
+    if (isNaN(numPeso) || isNaN(numAltura)) {
+      setMensagem("Preencha o peso e a altura");
+      setImc(null);
+      return;
+    }
+
+    setMensagem("");
+    calculoIMC();
+  }
 
   function calculoIMC() {
     let imcCalculado = parseFloat(peso) / (parseFloat(altura) * parseFloat(altura));
     setImc(imcCalculado);
+
     if (imcCalculado < 18.5) {
       setClassificacao("Abaixo do peso");
     } else if (imcCalculado < 25) {
       setClassificacao("Peso normal");
     } else if (imcCalculado < 30) {
       setClassificacao("Sobrepeso");
-    }
-    else {
+    } else {
       setClassificacao("Obeso");
     }
   }
-return (
-  <View style={styles.container}>
-    <View style={styles.containerLogo}>
-      <Image style={styles.logo} source={require('./assets/logo-app-imc.png')} />
-    </View>
 
-    <View style={styles.form}>
-      <Text style={styles.alerta}>Preencha o peso e a altura</Text>
-      <Text style={styles.label}>Altura</Text>
-      <TextInput style={styles.campo} onChangeText={setAltura}></TextInput>
-
-      <Text style={styles.label}>Peso</Text>
-      <TextInput style={styles.campo} onChangeText={setPeso}></TextInput>
-
-      <TouchableOpacity style={styles.btn} onPress={calculoIMC}>
-        <Text style={styles.btntext}>Calcular</Text>
-      </TouchableOpacity>
-
-      {imc != null && (
-      <View style={styles.resultado}>
-        <Text style={styles.labelResultado}>Seu IMC é:</Text>
-        <Text style={styles.resultadoIMC}>{imc?.toFixed(1)}</Text>
-        <Text style={styles.labelResultado}>Classicação:</Text>
-        <Text style={styles.classificacaoIMC}>{classificacao}</Text>
+  return (
+    <View style={styles.container}>
+      <View style={styles.containerLogo}>
+        <Image style={styles.logo} source={require('./assets/logo-app-imc.png')} />
       </View>
-      )}
-    </View>
 
-    <StatusBar style="auto" />
-  </View>
-);
+      <View style={styles.form}>
+
+        {mensagem !== "" && (
+          <Text style={styles.alerta}>
+            {mensagem}
+          </Text>
+        )}
+
+        <Text style={styles.label}>Altura</Text>
+        <TextInput style={styles.campo} onChangeText={setAltura}></TextInput>
+
+        <Text style={styles.label}>Peso</Text>
+        <TextInput style={styles.campo} onChangeText={setPeso}></TextInput>
+
+        <TouchableOpacity style={styles.btn} onPress={validarCampos}>
+          <Text style={styles.btntext}>Calcular</Text>
+        </TouchableOpacity>
+
+        {imc != null && (
+          <View style={styles.resultado}>
+            <Text style={styles.labelResultado}>Seu IMC é:</Text>
+            <Text style={styles.resultadoIMC}>{imc?.toFixed(1)}</Text>
+            <Text style={styles.labelResultado}>Classicação:</Text>
+            <Text style={styles.classificacaoIMC}>{classificacao}</Text>
+          </View>
+        )}
+      </View>
+
+      <StatusBar style="auto" />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -139,7 +167,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     fontSize: 18,
     marginBottom: 20,
-    
-
   }
 });
