@@ -1,171 +1,116 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Topo } from './components/Topo';
+import { Resultado } from './components/Resultado';
 
 export default function App() {
-  const [peso, setPeso] = useState<string>("");
-  const [altura, setAltura] = useState<string>("");
-  const [imc, setImc] = useState<number | null>(null);
-  const [classificacao, setClassificacao] = useState<string | null>(null);
-  const [mensagem, setMensagem] = useState("");
+    const [peso, setPeso] = useState<string>("");
+    const [altura, setAltura] = useState<string>("");
+    const [imc, setIMC] = useState<number | null>(null);
+    const [mensagem, setMsg] = useState<string | null>(null);
 
-  function validarCampos() {
-    if (peso === "" || altura === "") {
-      setMensagem("Preencha o peso e a altura");
-      setImc(null);
-      return;
+     function validarCampos() {
+        // Verifica se as variáveis estão vazias
+        if (peso !== '' && altura !== '') {
+            const pesoNum = Number.parseFloat(peso);
+            const alturaNum = Number.parseFloat(altura);
+            if ((pesoNum >= 0 && pesoNum <= 500) && (alturaNum >= 0 && alturaNum <= 3)) {
+                calcularIMC()
+                setMsg(null)
+            } else {
+                setMsg("Um dos valores informados é inválido")
+                setIMC(null)
+            }
+        } else {
+            setMsg("O peso e a altura devem ser informados")
+            setIMC(null)
+        }
     }
 
-    const numPeso = parseFloat(peso);
-    const numAltura = parseFloat(altura);
-
-    if (isNaN(numPeso) || isNaN(numAltura)) {
-      setMensagem("Preencha o peso e a altura");
-      setImc(null);
-      return;
+    function calcularIMC() {
+        let imcCalculado = parseFloat(peso) / (parseFloat(altura) * parseFloat(altura));
+        setIMC(imcCalculado);
     }
 
-    setMensagem("");
-    calculoIMC();
-  }
+    return (
+        <View style={styles.container}>
+            <Topo/>
 
-  function calculoIMC() {
-    let imcCalculado = parseFloat(peso) / (parseFloat(altura) * parseFloat(altura));
-    setImc(imcCalculado);
+            <View style={styles.form}>
+                {mensagem != null && (
+                    <Text style={styles.alerta}>{mensagem}</Text>
+                )}
 
-    if (imcCalculado < 18.5) {
-      setClassificacao("Abaixo do peso");
-    } else if (imcCalculado < 25) {
-      setClassificacao("Peso normal");
-    } else if (imcCalculado < 30) {
-      setClassificacao("Sobrepeso");
-    } else {
-      setClassificacao("Obeso");
-    }
-  }
+                <Text style={styles.label}>Altura</Text>
+                <TextInput style={styles.campo} keyboardType='numeric' onChangeText={setAltura}></TextInput>
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.containerLogo}>
-        <Image style={styles.logo} source={require('./assets/logo-app-imc.png')} />
-      </View>
+                <Text style={styles.label}>Peso</Text>
+                <TextInput style={styles.campo} keyboardType='numeric' onChangeText={setPeso}></TextInput>
 
-      <View style={styles.form}>
+                <TouchableOpacity 
+                    style={styles.btn}
+                    onPress={validarCampos}
+                >
+                    <Text style={styles.btntext}>Calcular</Text>
+                </TouchableOpacity>
 
-        {mensagem !== "" && (
-          <Text style={styles.alerta}>
-            {mensagem}
-          </Text>
-        )}
+                {imc != null && (
+                    <Resultado resultadoIMC={imc} />
+                )}
+            </View>
 
-        <Text style={styles.label}>Altura</Text>
-        <TextInput style={styles.campo} onChangeText={setAltura}></TextInput>
-
-        <Text style={styles.label}>Peso</Text>
-        <TextInput style={styles.campo} onChangeText={setPeso}></TextInput>
-
-        <TouchableOpacity style={styles.btn} onPress={validarCampos}>
-          <Text style={styles.btntext}>Calcular</Text>
-        </TouchableOpacity>
-
-        {imc != null && (
-          <View style={styles.resultado}>
-            <Text style={styles.labelResultado}>Seu IMC é:</Text>
-            <Text style={styles.resultadoIMC}>{imc?.toFixed(1)}</Text>
-            <Text style={styles.labelResultado}>Classicação:</Text>
-            <Text style={styles.classificacaoIMC}>{classificacao}</Text>
-          </View>
-        )}
-      </View>
-
-      <StatusBar style="auto" />
-    </View>
-  );
+            <StatusBar style="auto" />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#06C',
-  },
-  containerLogo: {
-    height: 150,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  logo: {
-    width: 170,
-    height: 60
-  },
-  form: {
-    backgroundColor: '#FFF',
-    padding: 30,
-    height: '100%',
-    borderTopEndRadius: 30,
-    borderTopStartRadius: 30
-  },
-  campo: {
-    backgroundColor: '#DDD',
-    width: '100%',
-    height: 70,
-    marginBottom: 20,
-    padding: 20,
-    borderRadius: 10,
-    fontSize: 20
-  },
-  label: {
-    marginBottom: 10,
-    fontSize: 22
-  },
-  btn: {
-    backgroundColor: '#F90',
-    width: '100%',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 50,
-    height: 70,
-    justifyContent: 'center'
-  },
-  btntext: {
-    textAlign: 'center',
-    fontSize: 22,
-    color: '#FFF',
-  },
-  resultado: {
-    backgroundColor: "#EEE",
-    padding: 20,
-    borderRadius: 20,
-  },
-  labelResultado: {
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: 800,
-    marginBottom: 10
-  },
-  resultadoIMC: {
-    backgroundColor: "#FFF",
-    padding: 10,
-    borderRadius: 10,
-    textAlign: 'center',
-    fontSize: 24,
-    marginBottom: 10
-  },
-  classificacaoIMC: {
-    backgroundColor: "#F00",
-    color: "#FFF",
-    padding: 10,
-    borderRadius: 10,
-    textAlign: 'center',
-    fontSize: 24,
-    marginBottom: 10
-  },
-  alerta: {
-    textAlign: 'center',
-    backgroundColor: "#F00",
-    color: "#FFF",
-    padding: 10,
-    borderRadius: 10,
-    fontSize: 18,
-    marginBottom: 20,
-  }
+    container: {
+        flex: 1,
+        backgroundColor: '#06C',
+    },
+    form: {
+        backgroundColor: '#FFF',
+        padding: 30,
+        height: '100%',
+        borderTopEndRadius: 30,
+        borderTopStartRadius: 30
+    },
+    campo: {
+        backgroundColor: '#DDD',
+        width: '100%',
+        height: 70,
+        marginBottom: 20,
+        padding: 20,
+        borderRadius: 10,
+        fontSize: 20
+    },
+    label: {
+        marginBottom: 10,
+        fontSize: 22
+    },
+    btn: {
+        backgroundColor: '#F90',
+        width: '100%',
+        padding: 10,
+        borderRadius: 10,
+        marginBottom: 50,
+        height: 70,
+        justifyContent: 'center'
+    },
+    btntext: {
+        textAlign: 'center',
+        fontSize: 22,
+        color: '#FFF',
+    },
+    alerta: {
+        textAlign: 'center',
+        backgroundColor: "#F00",
+        color: "#FFF",
+        padding: 10,
+        borderRadius: 10,
+        fontSize: 18,
+        marginBottom: 20
+    }
 });
